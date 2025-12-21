@@ -5,6 +5,7 @@ const auth = require('../middleware/authMiddleware');
 
 const router = express.Router();
 const ALLOWED_STATUSES = Note.NOTE_STATUSES || ['not_done', 'done', 'cancelled'];
+
 router.use(auth);
 
 function isValidObjectId(id) {
@@ -36,8 +37,18 @@ function normalizeStatus(status) {
   return aliases[s] || s.replace(/\s+/g, '_');
 }
 
+function parsePriority(value) {
+  if (value === undefined) return undefined;
+  const n = Number(value);
+
+  if (!Number.isInteger(n)) return { error: 'priority must be an integer' };
+  if (n < 0 || n > 1024) return { error: 'priority must be between 0 and 1024' };
+
+  return n;
+}
+
 router.post('/', async (req, res) => {
-  const { title, content, status } = req.body;
+  const { title, content, status, priority } = req.body;
 
   try {
     if (!content || !String(content).trim()) {
@@ -51,11 +62,19 @@ router.post('/', async (req, res) => {
       });
     }
 
+    const parsedPriority = parsePriority(priority);
+    if (parsedPriority && parsedPriority.error) {
+      return res.status(400).json({ message: parsedPriority.error });
+    }
+
     const newNote = await Note.create({
       user: req.userId,
       title: title || '',
       content,
       status: normalizedStatus,
+      priority: parsedPriority === undefined ? 0 : parsedPriority,
+      isDeleted: false,
+      deletedAt: null,
     });
 
     return res.status(201).json({ message: 'Note created', note: newNote });
@@ -68,7 +87,7 @@ router.get('/', async (req, res) => {
   const { status, search } = req.query;
 
   try {
-    const query = { user: req.userId };
+    const query = { user: req.userId, isDeleted: false };
 
     if (status) {
       const normalizedStatus = normalizeStatus(status);
@@ -88,7 +107,20 @@ router.get('/', async (req, res) => {
       ];
     }
 
-    const notes = await Note.find(query).sort({ createdAt: -1 });
+    const notes = await Note.find(query).sort({ priority: -1, updatedAt: -1 });
+    return res.json({ total: notes.length, notes });
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.get('/trash', async (req, res) => {
+  try {
+    const notes = await Note.find({ user: req.userId, isDeleted: true }).sort({
+      deletedAt: -1,
+      updatedAt: -1,
+    });
+
     return res.json({ total: notes.length, notes });
   } catch (err) {
     return res.status(500).json({ message: 'Server error' });
@@ -103,7 +135,7 @@ router.get('/:id', async (req, res) => {
       return res.status(400).json({ message: 'Invalid note id' });
     }
 
-    const note = await Note.findOne({ _id: id, user: req.userId });
+    const note = await Note.findOne({ _id: id, user: req.userId, isDeleted: false });
     if (!note) return res.status(404).json({ message: 'Note not found' });
 
     return res.json({ note });
@@ -114,7 +146,7 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { title, content, status } = req.body;
+  const { title, content, status, priority } = req.body;
 
   try {
     if (!isValidObjectId(id)) {
@@ -135,12 +167,20 @@ router.put('/:id', async (req, res) => {
       update.status = normalizedStatus;
     }
 
+    if (priority !== undefined) {
+      const parsedPriority = parsePriority(priority);
+      if (parsedPriority && parsedPriority.error) {
+        return res.status(400).json({ message: parsedPriority.error });
+      }
+      update.priority = parsedPriority;
+    }
+
     if (update.content !== undefined && !String(update.content).trim()) {
       return res.status(400).json({ message: 'content cannot be empty' });
     }
 
     const note = await Note.findOneAndUpdate(
-      { _id: id, user: req.userId },
+      { _id: id, user: req.userId, isDeleted: false },
       update,
       { new: true, runValidators: true }
     );
@@ -170,7 +210,7 @@ router.patch('/:id/status', async (req, res) => {
     }
 
     const note = await Note.findOneAndUpdate(
-      { _id: id, user: req.userId },
+      { _id: id, user: req.userId, isDeleted: false },
       { status: normalizedStatus },
       { new: true, runValidators: true }
     );
@@ -191,10 +231,54 @@ router.delete('/:id', async (req, res) => {
       return res.status(400).json({ message: 'Invalid note id' });
     }
 
-    const deleted = await Note.findOneAndDelete({ _id: id, user: req.userId });
-    if (!deleted) return res.status(404).json({ message: 'Note not found' });
+    const note = await Note.findOneAndUpdate(
+      { _id: id, user: req.userId, isDeleted: false },
+      { isDeleted: true, deletedAt: new Date() },
+      { new: true }
+    );
 
-    return res.json({ message: 'Note deleted' });
+    if (!note) return res.status(404).json({ message: 'Note not found' });
+
+    return res.json({ message: 'Note moved to trash', note });
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.patch('/:id/restore', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid note id' });
+    }
+
+    const note = await Note.findOneAndUpdate(
+      { _id: id, user: req.userId, isDeleted: true },
+      { isDeleted: false, deletedAt: null },
+      { new: true }
+    );
+
+    if (!note) return res.status(404).json({ message: 'Note not found in trash' });
+
+    return res.json({ message: 'Note restored', note });
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.delete('/:id/hard', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid note id' });
+    }
+
+    const deleted = await Note.findOneAndDelete({ _id: id, user: req.userId, isDeleted: true });
+    if (!deleted) return res.status(404).json({ message: 'Note not found in trash' });
+
+    return res.json({ message: 'Note permanently deleted' });
   } catch (err) {
     return res.status(500).json({ message: 'Server error' });
   }
