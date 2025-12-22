@@ -12,20 +12,17 @@ const Navbar = () => {
     logout();
     navigate('/login');
   };
-
-  // Nếu chưa đăng nhập thì không hiện Navbar (hoặc hiện bản tối giản)
   if (!localStorage.getItem('token')) return null;
-
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        {/* Logo bên trái */}
+        {}
         <Link to="/" className="navbar-logo">
           <StickyNote className="logo-icon" />
           <span>MyNotes</span>
         </Link>
 
-        {/* Thông tin user và nút Đăng xuất bên phải */}
+        {}
         <div className="navbar-menu">
           <div className="user-info">
             <User size={18} />

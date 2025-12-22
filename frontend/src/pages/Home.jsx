@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { getNotes, deleteNote, createNote, updateNote } from '../services/noteService';
 import { toast } from 'react-toastify';
-import { Plus, Trash2, Edit3, X } from 'lucide-react'; // Đã bỏ LogOut icon
+import { Plus, Trash2, Edit3, X } from 'lucide-react'; 
 import './Home.css';
 
 const Home = () => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // Logic cho Modal (Dùng chung cho cả Thêm và Sửa)
   const [showModal, setShowModal] = useState(false);
   const [newNote, setNewNote] = useState({ title: '', content: '' });
-  
-  // State bổ sung cho chức năng Sửa
   const [isEditing, setIsEditing] = useState(false);
   const [currentNoteId, setCurrentNoteId] = useState(null);
 
@@ -31,14 +27,12 @@ const Home = () => {
     }
   };
 
-  // Mở modal ở chế độ "Thêm mới"
   const handleOpenAddModal = () => {
     setNewNote({ title: '', content: '' });
     setIsEditing(false);
     setShowModal(true);
   };
 
-  // Mở modal ở chế độ "Chỉnh sửa"
   const handleEditClick = (note) => {
     setNewNote({ title: note.title, content: note.content });
     setCurrentNoteId(note._id);
@@ -46,7 +40,6 @@ const Home = () => {
     setShowModal(true);
   };
 
-  // Hàm xử lý Lưu (Gộp cả Thêm và Sửa)
   const handleSaveNote = async (e) => {
     e.preventDefault();
     try {
@@ -79,7 +72,7 @@ const Home = () => {
 
   return (
     <div className="home-container">
-      {/* Thanh công cụ mới thay thế cho header cũ */}
+      {}
       <div className="home-action-bar">
         <h2>Ghi chú của tôi</h2>
         <button className="btn-add" onClick={handleOpenAddModal}>
@@ -119,7 +112,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* MODAL FORM */}
+      {}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
