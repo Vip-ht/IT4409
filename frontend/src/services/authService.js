@@ -21,4 +21,5 @@ export const register = async (username, email, password) => {
 export const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  window.dispatchEvent(new Event('authChange'));
 };
