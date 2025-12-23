@@ -1,7 +1,9 @@
 import API from './api';
-export const getNotes = async () => {
+export const getNotes = async (search = '') => {
   try {
-    const response = await API.get('/notes');
+    const params = {};
+    if (search) params.search = search;
+    const response = await API.get('/notes', { params });
     return response.data;
   } catch (error) {
     const message = error.response?.data?.message || "Không thể lấy danh sách ghi chú";

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 // Nhớ import thêm các hàm mới từ service
 import { 
@@ -6,7 +6,7 @@ import {
   restoreNote, deleteNotePermanent 
 } from '../services/noteService';
 import { toast } from 'react-toastify';
-import { Plus, Trash2, Edit3, X, LogOut, Loader, RefreshCcw, Archive, ChevronLeft, ChevronRight, Moon, Sun } from 'lucide-react'; 
+import { Plus, Trash2, Edit3, X, LogOut, Loader, RefreshCcw, Archive, ChevronLeft, ChevronRight, Moon, Sun, Search } from 'lucide-react'; 
 import './Home.css';
 
 const Home = () => {
@@ -15,6 +15,9 @@ const Home = () => {
   
   // --- THEME ---
   const [theme, setTheme] = useState('light'); // 'light' | 'dark'
+
+  // --- SEARCH ---
+  const [searchQuery, setSearchQuery] = useState('');
 
   // viewMode: 'active' (ghi chú thường) hoặc 'trash' (thùng rác)
   const [viewMode, setViewMode] = useState('active'); 
@@ -33,19 +36,28 @@ const Home = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentNoteId, setCurrentNoteId] = useState(null);
   
+  // Lấy thông tin user an toàn hơn
+  const [user] = useState(() => {
+    try {
+      const userStr = localStorage.getItem('user');
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
+      return null;
+    }
+  });
+
   const navigate = useNavigate();
 
   // --- LOGIC AUTH ---
-  const performLogout = () => {
+  const performLogout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.dispatchEvent(new Event('authChange'));
     navigate('/login');
-  };
+  }, [navigate]);
 
   const handleLogout = () => {
     performLogout();
-    toast.success('Đăng xuất thành công!');
   };
 
   useEffect(() => {
@@ -55,18 +67,19 @@ const Home = () => {
       return;
     }
     setCurrentPage(1);
+    setSearchQuery(''); // Reset tìm kiếm khi chuyển tab
     fetchData(); // Gọi hàm lấy dữ liệu chung
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode]); // Chạy lại khi chuyển chế độ xem
 
   // --- LOGIC LẤY DỮ LIỆU & SẮP XẾP ---
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       let response;
       // Tùy vào chế độ xem mà gọi API khác nhau
       if (viewMode === 'active') {
-        response = await getNotes();
+        response = await getNotes(searchQuery);
       } else {
         response = await getTrashNotes();
       }
@@ -75,6 +88,15 @@ const Home = () => {
       if (Array.isArray(response)) notesData = response;
       else if (response?.notes && Array.isArray(response.notes)) notesData = response.notes;
       else if (response?.data && Array.isArray(response.data)) notesData = response.data;
+
+      // Client-side filtering cho Thùng rác (vì backend chưa hỗ trợ search trash)
+      if (viewMode === 'trash' && searchQuery) {
+        const lowerQ = searchQuery.toLowerCase();
+        notesData = notesData.filter(n => 
+          (n.title && n.title.toLowerCase().includes(lowerQ)) || 
+          (n.content && n.content.toLowerCase().includes(lowerQ))
+        );
+      }
 
       // SẮP XẾP: Priority nhỏ lên đầu (Tăng dần - số nhỏ ưu tiên cao hơn)
       notesData.sort((a, b) => (a.priority || 0) - (b.priority || 0));
@@ -91,7 +113,15 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [viewMode, searchQuery, performLogout]);
+
+  // Debounce search: Chỉ gọi API sau khi ngừng gõ 500ms
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, fetchData]);
 
   // --- HANDLERS ---
   const handleOpenAddModal = () => {
@@ -179,32 +209,45 @@ const Home = () => {
   return (
     <div className={`home-container ${theme}-theme`}>
       <div className="home-action-bar">
-        <h2>{viewMode === 'active' ? 'Ghi chú của tôi' : 'Thùng rác'}</h2>
+        {/* Hàng 1: Tiêu đề + Lời chào */}
+        <div className="header-top-row">
+          <h2>{viewMode === 'active' ? 'Ghi chú của tôi' : 'Thùng rác'}</h2>
+          {user && <span className="user-greeting">Xin chào, <strong>{user.username}</strong></span>}
+        </div>
         
-        <div className="action-buttons">
-          {/* Nút chuyển đổi chế độ xem */}
-          <button className="btn-theme-toggle" onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} title="Đổi giao diện">
-            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-          </button>
+        {/* Hàng 2: Tìm kiếm + Nút chức năng */}
+        <div className="header-bottom-row">
+          <div className="search-box">
+            <Search size={18} />
+            <input 
+              type="text" 
+              placeholder="Tìm kiếm..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
-          {viewMode === 'active' ? (
-            <>
-               <button className="btn-add" onClick={handleOpenAddModal}>
-                <Plus size={20} /> <span>Tạo mới</span>
-              </button>
-              <button className="btn-trash-view" onClick={() => setViewMode('trash')}>
-                <Trash2 size={20} /> Thùng rác
-              </button>
-            </>
-          ) : (
-             <button className="btn-back" onClick={() => setViewMode('active')}>
-                <Archive size={20} /> Quay lại Ghi chú
-              </button>
-          )}
+          <div className="action-buttons">
+            <button className="btn-theme-toggle" onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} title="Đổi giao diện">
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
 
-          <button className="btn-logout" onClick={handleLogout} title="Đăng xuất">
-            <LogOut size={20} />
-          </button>
+            {viewMode === 'active' ? (
+              <>
+                <button className="btn-add" onClick={handleOpenAddModal}>
+                  <Plus size={20} /> <span>Tạo mới</span>
+                </button>
+                <button className="btn-trash-view" onClick={() => setViewMode('trash')}>
+                  <Trash2 size={20} /> Thùng rác
+                </button>
+              </>
+            ) : (
+              <button className="btn-back" onClick={() => setViewMode('active')}>
+                  <Archive size={20} /> Quay lại
+                </button>
+            )}
+            <button className="btn-logout" onClick={handleLogout} title="Đăng xuất"><LogOut size={20} /></button>
+          </div>
         </div>
       </div>
 

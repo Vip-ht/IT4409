@@ -55,18 +55,71 @@
 /* --- 2. HEADER & THANH CÔNG CỤ --- */
 .home-action-bar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column; /* Xếp chồng 2 hàng */
+  gap: 1rem;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--border-primary);
 }
 
-.home-action-bar h2 {
+/* Hàng 1: Tiêu đề và Lời chào */
+.header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.header-top-row h2 {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
   color: var(--text-primary);
+}
+
+.user-greeting {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+/* Hàng 2: Tìm kiếm và Nút bấm */
+.header-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* --- SEARCH BOX --- */
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 40px;
+  flex: 1; /* Tự động giãn để lấp đầy */
+  min-width: 200px; /* Đảm bảo không bị quá nhỏ trên mobile */
+  max-width: 400px;
+}
+.search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  margin-left: 8px;
+  width: 100%;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+.search-box svg { stroke: var(--text-tertiary); }
+.search-box:focus-within {
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .action-buttons {
