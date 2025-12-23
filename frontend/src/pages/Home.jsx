@@ -12,8 +12,13 @@ const Home = () => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const [theme, setTheme] = useState('light'); 
+  // --- THEME ---
+  const [theme, setTheme] = useState('light'); // 'light' | 'dark'
+
+  // --- SEARCH ---
   const [searchQuery, setSearchQuery] = useState('');
+
+  // viewMode: 'active' (ghi chú thường) hoặc 'trash' (thùng rác)
   const [viewMode, setViewMode] = useState('active'); 
   
   const [currentPage, setCurrentPage] = useState(1);
