@@ -16,13 +16,11 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        {}
         <Link to="/" className="navbar-logo">
           <StickyNote className="logo-icon" />
           <span>MyNotes</span>
         </Link>
 
-        {}
         <div className="navbar-menu">
           <div className="user-info">
             <User size={18} />

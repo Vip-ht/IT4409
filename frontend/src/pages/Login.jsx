@@ -31,7 +31,6 @@ const Login = () => {
         localStorage.removeItem('user');
       }
 
-      // notify app about auth state change so it re-renders
       window.dispatchEvent(new Event('authChange'));
 
       toast.success('Đăng nhập thành công!');

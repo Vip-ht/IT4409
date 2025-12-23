@@ -50,7 +50,6 @@ export const getTrashNotes = async () => {
 
 export const restoreNote = async (id) => {
   try {
-    // Backend: router.patch('/:id/restore', ...)
     const response = await API.patch(`/notes/${id}/restore`);
     return response.data;
   } catch (error) {
@@ -61,7 +60,6 @@ export const restoreNote = async (id) => {
 
 export const deleteNotePermanent = async (id) => {
   try {
-    // Backend: router.delete('/:id/hard', ...)
     const response = await API.delete(`/notes/${id}/hard`);
     return response.data;
   } catch (error) {
