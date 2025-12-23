@@ -3,8 +3,8 @@
   --text-primary: #111827;
   --text-secondary: #4b5563;
   --text-tertiary: #9ca3af;
-  --surface-primary: #ffffff; /* card, modal */
-  --surface-secondary: #f3f4f6; /* button bg */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f3f4f6;
   --border-primary: #e5e7eb;
   --border-secondary: #d1d5db;
   --shadow-color: rgba(0, 0, 0, 0.1);
@@ -179,23 +179,22 @@
 
 .note-card {
   background: var(--surface-primary);
-  border: 1px solid var(--border-primary); /* Viền mỏng */
-  border-radius: 12px;       /* Bo góc */
+  border: 1px solid var(--border-primary); 
+  border-radius: 12px;
   padding: 24px;
   
-  /* Đổ bóng nhẹ */
   box-shadow: 0 1px 3px var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
   
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   
-  min-height: 220px; /* Chiều cao tối thiểu để các thẻ đều nhau */
+  min-height: 220px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .note-card:hover {
-  transform: translateY(-4px); /* Nhệu lên khi hover */
+  transform: translateY(-4px);
   box-shadow: 0 10px 15px -3px var(--shadow-color);
   border-color: var(--border-secondary);
 }
@@ -390,11 +389,11 @@
 }
 .btn-save:hover { background: var(--primary-accent-hover); }
 .action-btn svg {
-  width: 18px;       /* Ép kích thước cố định */
+  width: 18px;
   height: 18px;
-  stroke: var(--text-tertiary);   /* Ép màu xám đậm */
-  stroke-width: 2px; /* Độ dày nét */
-  min-width: 18px;   /* Ngăn icon bị bóp méo */
+  stroke: var(--text-tertiary);
+  stroke-width: 2px;
+  min-width: 18px;
 }
 
 .action-btn:hover svg {
