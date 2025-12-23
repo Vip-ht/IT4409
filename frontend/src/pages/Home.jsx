@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Nhớ import thêm các hàm mới từ service
 import { 
   getNotes, getTrashNotes, deleteNote, createNote, updateNote, 
   restoreNote, deleteNotePermanent 
@@ -13,22 +12,14 @@ const Home = () => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // --- THEME ---
-  const [theme, setTheme] = useState('light'); // 'light' | 'dark'
-
-  // --- SEARCH ---
+  const [theme, setTheme] = useState('light'); 
   const [searchQuery, setSearchQuery] = useState('');
-
-  // viewMode: 'active' (ghi chú thường) hoặc 'trash' (thùng rác)
   const [viewMode, setViewMode] = useState('active'); 
   
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const notesPerPage = 6;
-
   const [showModal, setShowModal] = useState(false);
   
-  // Cập nhật state cho note mới với status và priority
   const [newNote, setNewNote] = useState({ 
     title: '', content: '', status: 'not_done', priority: 1 
   });
@@ -36,7 +27,6 @@ const Home = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentNoteId, setCurrentNoteId] = useState(null);
   
-  // Lấy thông tin user an toàn hơn
   const [user] = useState(() => {
     try {
       const userStr = localStorage.getItem('user');
@@ -48,7 +38,6 @@ const Home = () => {
 
   const navigate = useNavigate();
 
-  // --- LOGIC AUTH ---
   const performLogout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -67,17 +56,14 @@ const Home = () => {
       return;
     }
     setCurrentPage(1);
-    setSearchQuery(''); // Reset tìm kiếm khi chuyển tab
-    fetchData(); // Gọi hàm lấy dữ liệu chung
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode]); // Chạy lại khi chuyển chế độ xem
+    setSearchQuery('');
+    fetchData();
+  }, [viewMode]);
 
-  // --- LOGIC LẤY DỮ LIỆU & SẮP XẾP ---
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       let response;
-      // Tùy vào chế độ xem mà gọi API khác nhau
       if (viewMode === 'active') {
         response = await getNotes(searchQuery);
       } else {
@@ -89,7 +75,6 @@ const Home = () => {
       else if (response?.notes && Array.isArray(response.notes)) notesData = response.notes;
       else if (response?.data && Array.isArray(response.data)) notesData = response.data;
 
-      // Client-side filtering cho Thùng rác (vì backend chưa hỗ trợ search trash)
       if (viewMode === 'trash' && searchQuery) {
         const lowerQ = searchQuery.toLowerCase();
         notesData = notesData.filter(n => 
@@ -98,7 +83,6 @@ const Home = () => {
         );
       }
 
-      // SẮP XẾP: Priority nhỏ lên đầu (Tăng dần - số nhỏ ưu tiên cao hơn)
       notesData.sort((a, b) => (a.priority || 0) - (b.priority || 0));
 
       setNotes(notesData);
@@ -108,14 +92,13 @@ const Home = () => {
         toast.error('Phiên đăng nhập hết hạn.');
         performLogout();
       } else {
-        // toast.error('Lỗi tải dữ liệu.');
+        toast.error('Lỗi tải dữ liệu.');
       }
     } finally {
       setLoading(false);
     }
   }, [viewMode, searchQuery, performLogout]);
 
-  // Debounce search: Chỉ gọi API sau khi ngừng gõ 500ms
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       fetchData();
@@ -123,7 +106,6 @@ const Home = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, fetchData]);
 
-  // --- HANDLERS ---
   const handleOpenAddModal = () => {
     setNewNote({ title: '', content: '', status: 'not_done', priority: 1 });
     setIsEditing(false);
@@ -159,10 +141,8 @@ const Home = () => {
     }
   };
 
-  // Xử lý nút xóa (tùy ngữ cảnh)
   const handleDeleteAction = async (id) => {
     if (viewMode === 'active') {
-      // Đang ở trang chính -> Xóa mềm (Vào thùng rác)
       if (window.confirm('Chuyển ghi chú này vào thùng rác?')) {
         try {
           await deleteNote(id);
@@ -171,7 +151,6 @@ const Home = () => {
         } catch (err) { toast.error(err.message || 'Lỗi xóa.'); }
       }
     } else {
-      // Đang ở thùng rác -> Xóa vĩnh viễn
       if (window.confirm('CẢNH BÁO: Hành động này không thể hoàn tác. Xóa vĩnh viễn?')) {
         try {
           await deleteNotePermanent(id);
@@ -182,7 +161,6 @@ const Home = () => {
     }
   };
 
-  // Xử lý khôi phục
   const handleRestore = async (id) => {
     try {
       await restoreNote(id);
@@ -191,7 +169,6 @@ const Home = () => {
     } catch (err) { toast.error(err.message || 'Lỗi khôi phục.'); }
   };
 
-  // Hàm helper để hiển thị màu badge trạng thái
   const getStatusBadge = (status) => {
     switch (status) {
       case 'done': return <span className="status-badge done">Đã xong</span>;
@@ -200,7 +177,6 @@ const Home = () => {
     }
   };
 
-  // Logic phân trang
   const indexOfLastNote = currentPage * notesPerPage;
   const indexOfFirstNote = indexOfLastNote - notesPerPage;
   const currentNotes = notes.slice(indexOfFirstNote, indexOfLastNote);
@@ -209,13 +185,11 @@ const Home = () => {
   return (
     <div className={`home-container ${theme}-theme`}>
       <div className="home-action-bar">
-        {/* Hàng 1: Tiêu đề + Lời chào */}
         <div className="header-top-row">
           <h2>{viewMode === 'active' ? 'Ghi chú của tôi' : 'Thùng rác'}</h2>
           {user && <span className="user-greeting">Xin chào, <strong>{user.username}</strong></span>}
         </div>
         
-        {/* Hàng 2: Tìm kiếm + Nút chức năng */}
         <div className="header-bottom-row">
           <div className="search-box">
             <Search size={18} />
@@ -260,7 +234,6 @@ const Home = () => {
               <div key={note._id || note.id} className="note-card">
                 <div className="note-header-row">
                    {getStatusBadge(note.status)}
-                   {/* Hiển thị Priority */}
                    <span className="priority-badge"> {note.priority || 0}</span>
                 </div>
                 
@@ -276,7 +249,6 @@ const Home = () => {
                   
                   <div className="note-actions">
                     {viewMode === 'active' ? (
-                      // Nút bấm cho chế độ Active
                       <>
                         <button className="action-btn edit" onClick={() => handleEditClick(note)}>
                           <Edit3 size={18} />
@@ -286,7 +258,6 @@ const Home = () => {
                         </button>
                       </>
                     ) : (
-                      // Nút bấm cho chế độ Thùng rác
                       <>
                         <button className="action-btn restore" onClick={() => handleRestore(note._id || note.id)} title="Khôi phục">
                           <RefreshCcw size={18} />
@@ -308,7 +279,6 @@ const Home = () => {
         </div>
       )}
 
-      {/* Pagination Controls */}
       {notes.length > notesPerPage && (
         <div className="pagination">
           <button 
@@ -331,7 +301,6 @@ const Home = () => {
         </div>
       )}
 
-      {/* Modal */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -340,7 +309,6 @@ const Home = () => {
               <button className="btn-close" onClick={() => setShowModal(false)}><X size={24} /></button>
             </div>
             <form onSubmit={handleSaveNote}>
-              {/* Hàng: Status + Priority */}
               <div className="form-row">
                  <div className="form-group half">
                     <label>Trạng thái</label>

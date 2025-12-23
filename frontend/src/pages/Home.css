@@ -1,12 +1,10 @@
-/* --- 0. THEME VARIABLES --- */
 .home-container {
-  /* Light Theme (Default) */
   --bg-main: #f9fafb;
   --text-primary: #111827;
   --text-secondary: #4b5563;
   --text-tertiary: #9ca3af;
-  --surface-primary: #ffffff; /* card, modal */
-  --surface-secondary: #f3f4f6; /* button bg */
+  --surface-primary: #ffffff; 
+  --surface-secondary: #f3f4f6; 
   --border-primary: #e5e7eb;
   --border-secondary: #d1d5db;
   --shadow-color: rgba(0, 0, 0, 0.1);
@@ -21,7 +19,6 @@
 }
 
 .dark-theme {
-  /* Dark Theme Overrides */
   --bg-main: #111827;
   --text-primary: #f9fafb;
   --text-secondary: #d1d5db;
@@ -41,7 +38,6 @@
   --success-border-hover: #059669;
 }
 
-/* --- 1. CONTAINER CHÍNH --- */
 .home-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -52,17 +48,15 @@
   min-height: 100vh;
 }
 
-/* --- 2. HEADER & THANH CÔNG CỤ --- */
 .home-action-bar {
   display: flex;
-  flex-direction: column; /* Xếp chồng 2 hàng */
+  flex-direction: column;
   gap: 1rem;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--border-primary);
 }
 
-/* Hàng 1: Tiêu đề và Lời chào */
 .header-top-row {
   display: flex;
   justify-content: space-between;
@@ -85,7 +79,6 @@
   align-items: center;
 }
 
-/* Hàng 2: Tìm kiếm và Nút bấm */
 .header-bottom-row {
   display: flex;
   justify-content: space-between;
@@ -94,7 +87,6 @@
   gap: 1rem;
 }
 
-/* --- SEARCH BOX --- */
 .search-box {
   display: flex;
   align-items: center;
@@ -103,8 +95,8 @@
   border-radius: 8px;
   padding: 0 12px;
   height: 40px;
-  flex: 1; /* Tự động giãn để lấp đầy */
-  min-width: 200px; /* Đảm bảo không bị quá nhỏ trên mobile */
+  flex: 1;
+  min-width: 200px;
   max-width: 400px;
 }
 .search-box input {
@@ -128,7 +120,6 @@
   align-items: center;
 }
 
-/* Style chung cho các nút trên thanh Header (Tạo mới, Thùng rác, Logout) */
 .btn-add, .btn-logout, .btn-trash-view, .btn-back, .btn-theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -144,14 +135,12 @@
   font-size: 0.9rem;
 }
 
-/* Nút Tạo mới: Màu xám nhạt (giống ảnh mẫu) */
 .btn-add {
   background-color: var(--surface-secondary);
   color: var(--text-primary);
 }
 .btn-add:hover { background-color: var(--border-primary); }
 
-/* Nút Thùng rác */
 .btn-trash-view {
   background-color: var(--surface-primary);
   border: 1px solid var(--border-secondary);
@@ -159,24 +148,21 @@
 }
 .btn-trash-view:hover { background-color: var(--bg-main); border-color: var(--text-tertiary); }
 
-/* Nút Quay lại (Khi ở thùng rác) */
 .btn-back {
   background-color: #ecfdf5;
   color: #059669;
   border: 1px solid #6ee7b7;
 }
-.btn-back:hover { background-color: #d1fae5; } /* Giữ nguyên cho dễ nhìn */
+.btn-back:hover { background-color: #d1fae5; }
 
-/* Nút Logout */
 .btn-logout {
   background-color: var(--surface-secondary);
   color: var(--text-secondary);
-  width: 40px; /* Hình vuông */
+  width: 40px;
   padding: 0; 
 }
 .btn-logout:hover { background-color: var(--danger-bg-hover); color: var(--danger-text); }
 
-/* Nút Theme Toggle */
 .btn-theme-toggle {
   background-color: var(--surface-secondary);
   color: var(--text-secondary);
@@ -185,38 +171,33 @@
 }
 .btn-theme-toggle:hover { background-color: var(--border-primary); }
 
-/* --- 3. GRID & CARD GHI CHÚ (QUAN TRỌNG NHẤT) --- */
 .notes-grid {
   display: grid;
-  /* Chia cột tự động: Tối thiểu 300px/cột. Màn hình to sẽ hiện 3-4 cột */
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
   gap: 24px;
 }
 
 .note-card {
   background: var(--surface-primary);
-  border: 1px solid var(--border-primary); /* Viền mỏng */
-  border-radius: 12px;       /* Bo góc */
+  border: 1px solid var(--border-primary); 
+  border-radius: 12px;  
   padding: 24px;
-  
-  /* Đổ bóng nhẹ */
   box-shadow: 0 1px 3px var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
   
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   
-  min-height: 220px; /* Chiều cao tối thiểu để các thẻ đều nhau */
+  min-height: 220px; 
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .note-card:hover {
-  transform: translateY(-4px); /* Nhệu lên khi hover */
+  transform: translateY(-4px); 
   box-shadow: 0 10px 15px -3px var(--shadow-color);
   border-color: var(--border-secondary);
 }
 
-/* Phần Badge (Trạng thái + Priority) */
 .note-header-row {
   display: flex;
   justify-content: space-between;
@@ -232,8 +213,8 @@
   letter-spacing: 0.5px;
 }
 .status-badge.not-done { background: var(--surface-secondary); color: var(--text-secondary); }
-.status-badge.done { background: #dcfce7; color: #166534; } /* Giữ màu để dễ phân biệt */
-.status-badge.cancelled { background: #fee2e2; color: #991b1b; } /* Giữ màu để dễ phân biệt */
+.status-badge.done { background: #dcfce7; color: #166534; }
+.status-badge.cancelled { background: #fee2e2; color: #991b1b; }
 
 .priority-badge {
   font-size: 0.75rem;
@@ -245,9 +226,8 @@
   border: 1px solid #ffedd5;
 }
 
-/* Phần nội dung text */
 .note-body {
-  flex: 1; /* Chiếm hết khoảng trống */
+  flex: 1;
   margin-bottom: 16px;
 }
 
@@ -256,7 +236,7 @@
   margin-bottom: 8px;
   font-size: 1.125rem;
   color: var(--text-primary);
-  word-break: break-word; /* Ngắt dòng tiêu đề dài */
+  word-break: break-word;
 }
 
 .note-body p {
@@ -265,12 +245,10 @@
   line-height: 1.6;
   white-space: pre-wrap;
   
-  /* XỬ LÝ CHỮ DÀI KHÔNG BỊ VỠ LAYOUT */
   overflow-wrap: break-word;
   word-wrap: break-word;
   word-break: break-word;
   
-  /* Cắt dòng nếu quá dài (tối đa 5 dòng) */
   display: -webkit-box;
   -webkit-line-clamp: 5;
   line-clamp: 5;
@@ -278,7 +256,6 @@
   overflow: hidden;
 }
 
-/* Chân trang (Ngày + Nút hành động) */
 .note-footer {
   margin-top: auto;
   padding-top: 16px;
@@ -321,7 +298,6 @@
   background: var(--success-bg-hover); border-color: var(--success-border-hover); color: var(--success-text); 
 }
 
-/* --- 4. TRẠNG THÁI TRỐNG & LOADING --- */
 .empty-state, .loading-state {
   grid-column: 1 / -1;
   text-align: center;
@@ -332,7 +308,6 @@
   color: var(--text-secondary);
 }
 
-/* --- 5. MODAL & FORM (Giữ nguyên logic của bạn) --- */
 .modal-overlay {
   position: fixed; top: 0; left: 0;
   width: 100%; height: 100%;
@@ -345,7 +320,7 @@
 .modal-content {
   background: var(--surface-primary);
   padding: 2rem;
-  border-radius: 16px; /* Bo tròn hơn chút */
+  border-radius: 16px;
   width: 90%; max-width: 500px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: modalFadeIn 0.2s ease-out;
@@ -367,7 +342,6 @@
 }
 .btn-close:hover { color: var(--text-primary); }
 
-/* Style cho Input/Textarea */
 .form-group { margin-bottom: 1rem; }
 .form-row { display: flex; gap: 12px; margin-bottom: 1rem; }
 .form-group.half { flex: 1; }
@@ -397,7 +371,6 @@
 
 .title-input { font-weight: 600; font-size: 1.1rem; }
 
-/* Footer Modal */
 .modal-footer {
   display: flex; justify-content: flex-end; gap: 12px; margin-top: 1.5rem;
 }
@@ -414,21 +387,18 @@
   box-shadow: 0 4px 6px -1px var(--primary-accent-hover);
 }
 .btn-save:hover { background: var(--primary-accent-hover); }
-/* --- FIX LỖI ICON KHÔNG HIỆN --- */
 .action-btn svg {
-  width: 18px;       /* Ép kích thước cố định */
+  width: 18px;   
   height: 18px;
-  stroke: var(--text-tertiary);   /* Ép màu xám đậm */
-  stroke-width: 2px; /* Độ dày nét */
-  min-width: 18px;   /* Ngăn icon bị bóp méo */
+  stroke: var(--text-tertiary);  
+  stroke-width: 2px;
+  min-width: 18px; 
 }
 
-/* Khi di chuột vào thì đổi màu đậm hơn */
 .action-btn:hover svg {
   stroke: var(--text-primary);
 }
 
-/* Riêng nút xóa khi hover thì đỏ */
 .action-btn.delete:hover svg, 
 .action-btn.delete-forever:hover svg {
   stroke: var(--danger-text);
