@@ -34,7 +34,7 @@ jobs:
         runs-on: ubuntu-latest 
         needs: build-and-push 
         steps: 
-        # 5. SSH vào server và deploy container, phần này không chạy được do không có server cụ thể 
+        # 5. SSH vào server và deploy container,  phần này không chạy được do không có server cụ thể 
             - name: Deploy via SSH 
               uses: appleboy/ssh-action@v1.0.3 
               with: 
